@@ -1,5 +1,25 @@
 # Changelog
 
+## 3.2.0+dlct.1 (DayLight Creative Technologies fork)
+
+- The iOS Swift package (`ios/mixpanel_flutter/Package.swift`) depends on
+  `DayLight-Creative-Technologies/dlct_mixpanel_swift` at revision
+  `dd63aa5d4329c90eebf56ace320446c3e086f214` instead of upstream
+  `mixpanel/mixpanel-swift` `exact: "7.1.0"`, and the target takes the `Mixpanel`
+  product from `dlct_mixpanel_swift`.
+- Why: in that fork `optOutTracking()` discards the unsent event queue and voids
+  in-flight batches (SocialScoreKeeper FUNNEL-2026-001 REQ-030). SocialScoreKeeper's
+  CocoaPods build substitutes the fork with a Podfile override; Swift Package Manager
+  has no override for a transitive dependency, so the plugin's own manifest must name
+  the fork (SWIFTPM-2026-001 REQ-029). The revision is the one SocialScoreKeeper's
+  `ios/Podfile.lock` pins.
+- Nothing else changes: the Dart library (its `sdkVersion` stays `3.2.0`), Android,
+  macOS, web and `ios/mixpanel_flutter.podspec` are upstream v3.2.0's.
+- CI: upstream's workflows are replaced by `build.yml`, whose job `SwiftPM build (iOS)`
+  builds the example app with Swift Package Manager and fails unless the resolved graph
+  pins `dlct_mixpanel_swift` at the manifest's revision and holds no
+  `mixpanel/mixpanel-swift` package.
+
 ## [v3.2.0](https://github.com/mixpanel/mixpanel-flutter/tree/v3.2.0) (2026-11-02)
 
 ### Features

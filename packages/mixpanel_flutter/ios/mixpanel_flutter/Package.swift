@@ -13,9 +13,11 @@ let package = Package(
         )
     ],
     dependencies: [
+        // DLCT fork: optOutTracking() discards the unsent event queue (SocialScoreKeeper FUNNEL-2026-001
+        // REQ-030). Pinned by revision to the commit SocialScoreKeeper's ios/Podfile.lock pins.
         .package(
-            url: "https://github.com/mixpanel/mixpanel-swift.git",
-            exact: "7.1.0"
+            url: "https://github.com/DayLight-Creative-Technologies/dlct_mixpanel_swift.git",
+            revision: "dd63aa5d4329c90eebf56ace320446c3e086f214"
         ),
         .package(name: "FlutterFramework", path: "../FlutterFramework")
     ],
@@ -23,7 +25,7 @@ let package = Package(
         .target(
             name: "mixpanel_flutter",
             dependencies: [
-                .product(name: "Mixpanel", package: "mixpanel-swift"),
+                .product(name: "Mixpanel", package: "dlct_mixpanel_swift"),
                 .product(name: "FlutterFramework", package: "FlutterFramework")
             ],
             path: "Sources/mixpanel_flutter",

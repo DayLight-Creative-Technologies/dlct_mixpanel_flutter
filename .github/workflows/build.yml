@@ -1,0 +1,45 @@
+name: Build
+
+# DayLight Creative Technologies fork. SocialScoreKeeper pins this fork by commit SHA, and its
+# `scripts/check_fork_ci_green.py` (gate #76) requires the pinned commit to have a green run of this
+# workflow in which the job named "SwiftPM build (iOS)" succeeded. Renaming that job breaks the gate, by design.
+#
+# A push to the default branch starts a run. GitHub keeps a fork's workflows dormant until Actions is
+# enabled for it, so a run can also be dispatched by hand:
+#   gh workflow run build.yml --repo DayLight-Creative-Technologies/dlct_mixpanel_flutter --ref dlct-3.2.0
+
+on:
+  push:
+    branches: [ dlct-3.2.0 ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  swiftpm-build-ios:
+    name: SwiftPM build (iOS)
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+    - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90  # v1
+      with:
+        xcode-version: '26'
+    - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2  # v2.23.0
+      with:
+        channel: stable
+
+    # The fork's change is ios/mixpanel_flutter/Package.swift: resolve and compile it through Swift Package
+    # Manager in the example app (its pubspec.yaml enables SwiftPM), as a Flutter app with SwiftPM builds it.
+    - name: Build the example app with Swift Package Manager (iOS Simulator)
+      working-directory: packages/mixpanel_flutter/example
+      run: |
+        flutter --version
+        flutter pub get
+        flutter build ios --simulator --debug
+
+    # A green build alone does not show which package provided `Mixpanel`: fail unless the resolved graph
+    # pins dlct_mixpanel_swift at the manifest's revision and holds no upstream mixpanel-swift.
+    - name: Mixpanel resolves from dlct_mixpanel_swift
+      run: python3 .github/scripts/assert_swiftpm_graph.py

@@ -25,4 +25,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # DLCT fork: build with Swift Package Manager (the fork changes the iOS Package.swift), whatever the
+  # machine-global `flutter config` says; the project setting outranks it.
+  config:
+    enable-swift-package-manager: true
 
